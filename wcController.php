@@ -41,7 +41,8 @@ class wcController
 	public function loadTemplate($path='')
 	{
 		if (strlen($path)==0)	// index.html.fr.php
-			$path=sprintf('./views/%s-%s-%s.php', $this->Name, $this->Template, $this->Type );
+			$path=sprintf('./views/%s-%s.%s', $this->Name, $this->Template, $this->Type );
+			//$path=sprintf('./views/%s-%s-%s.php', $this->Name, $this->Template, $this->Type );
 // 	CONTROLLER WITH LANGUAGE
 //			$path=sprintf('./views/%s-%s-%s-%s.php', $this->Name, $this->Template, $this->Type ,$this->Data['LANGUAGE']);
 
