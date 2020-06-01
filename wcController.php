@@ -25,6 +25,7 @@ class wcController
 		$this->Name		= $name;
 		$this->Action	= wcCore::varGet('q');
 		$this->Data		= array();
+		$this->DataChunk	= array(); //all variables declared in this will be reprocessed a second time, to allow templating nesting 
 		$this->Body		= '';
 		$this->Type		= $type;
 		$this->Area  	= $area;
@@ -52,13 +53,12 @@ class wcController
 			$this->Body = ob_get_contents();
 			ob_end_clean();
 		}
-        else
-        {
+		else
+		{
 
-        	//echo "template not found:$path ".' -- GETCWD:'.getcwd();
-        	echo "<br />";
-        }
-
+			//echo "template not found:$path ".' -- GETCWD:'.getcwd();
+			echo "<br />";
+		}
 	}
 	//!this function load the template specified, launch the plugins specified in the templates, insert dynaminc data and flush out the output
 	public function render()
@@ -66,28 +66,31 @@ class wcController
 		$this->loadTemplate();
 		//var_dump($this);
 		$this->processPlugins();
+		foreach(	$this->DataChunk as $chunk )
+			$this->Data[$chunk] = $this->processDataChunk( $this->Data[$chunk] );
 		$this->processData();
 		// DISABLE CACHE WHILE DEVELOPING
 		// $this->saveCache();
 		echo $this->Body ;
-
-
-function renderPage()
-{
-	global $ctrl;
-	$ctrl->loadTemplate();
-	$ctrl->processData();
-	$ctrl->processPlugins();
-	$ctrl->processData();
-	$ctrl->render();
-}
-
 	}
+
+
+	//!this function will search for specific keywords in the template, when keywords are found they are looked up in the $Data array, if they are found, they will be replaced by the actual value
+	public function processDataChunk($chunk)
+	{
+		$res=$chunk;
+
+		foreach($this->Data as $key => $value)
+		{
+			$search='<!--[-'.$key.'-]-->';
+			$res=str_replace( $search ,$value, $res);
+		}
+		return $res;
+	}
+
 	//!this function will search for specific keywords in the template, when keywords are found they are looked up in the $Data array, if they are found, they will be replaced by the actual value
 	public function processData()
 	{
-//		var_dump($this->Data);
-//		die;
 		$page=$this->Body;
 
 		foreach($this->Data as $key => $value)
